@@ -16,7 +16,7 @@ from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import json
 # Enable logging
-from BOT.youtube_api import YoutubeAPI
+from youtube_api import YoutubeAPI
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -27,9 +27,8 @@ logger = logging.getLogger(__name__)
 
 class TelegramBot(YoutubeAPI):
     def __init__(self):
-        YoutubeAPI.__init__(self)
-        import json
-        with open('BOT\credentials.json') as file:
+        # YoutubeAPI.__init__(self)
+        with open('credentials.json') as file:
             data = json.loads(file.read())
             self.auth_token = data.get('telegram_auth_token')
             self.playlistId = data.get('playlist_id')
