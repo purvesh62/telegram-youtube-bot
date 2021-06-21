@@ -80,6 +80,14 @@ class TelegramBot(YoutubeAPI):
                 update.message.text = f'I have added the song to the playlist {update.effective_user.name}'
             else:
                 update.message.text = f'Due to some error I couldn\'t perform the operation.'
+        elif 'https://youtu.be' in update.message.text:
+            video_id = update.message.text.split('/')[-1]
+            response = self.get_video_info(video_id)
+            if len(response.get('items')) > 0:
+                self.insert_into_playlist(self.playlistId, video_id)
+                update.message.text = f'I have added the song to the playlist {update.effective_user.name}'
+            else:
+                update.message.text = f'Due to some error I couldn\'t perform the operation.'
         update.message.reply_text(update.message.text)
 
 
