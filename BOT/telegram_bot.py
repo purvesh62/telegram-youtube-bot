@@ -35,59 +35,76 @@ class TelegramBot(YoutubeAPI):
 
     def main(self) -> None:
         """Start the bot."""
-        # Create the Updater and pass it your bot's token.
-        updater = Updater(self.auth_token)
+        try:
+            logging.info("*** Telegram Bot ***")
+            # Create the Updater and pass it your bot's token.
+            updater = Updater(self.auth_token)
 
-        # Get the dispatcher to register handlers
-        dispatcher = updater.dispatcher
+            # Get the dispatcher to register handlers
+            dispatcher = updater.dispatcher
 
-        # on different commands - answer in Telegram
-        dispatcher.add_handler(CommandHandler("start", self.start))
-        dispatcher.add_handler(CommandHandler("help", self.help_command))
+            # on different commands - answer in Telegram
+            dispatcher.add_handler(CommandHandler("start", self.start))
+            dispatcher.add_handler(CommandHandler("help", self.help_command))
 
-        # on non command i.e message - echo the message on Telegram
-        dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, self.echo))
+            # on non command i.e message - echo the message on Telegram
+            dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, self.echo))
 
-        # Start the Bot
-        updater.start_polling()
+            # Start the Bot
+            updater.start_polling()
 
-        # Run the bot until you press Ctrl-C or the process receives SIGINT,
-        # SIGTERM or SIGABRT. This should be used most of the time, since
-        # start_polling() is non-blocking and will stop the bot gracefully.
-        updater.idle()
+            # Run the bot until you press Ctrl-C or the process receives SIGINT,
+            # SIGTERM or SIGABRT. This should be used most of the time, since
+            # start_polling() is non-blocking and will stop the bot gracefully.
+            updater.idle()
+        except Exception as exception:
+            logging.exception(exception)
 
     # Define a few command handlers. These usually take the two arguments update and
     # context.
     def start(self, update: Update, context: CallbackContext) -> None:
         """Send a message when the command /start is issued."""
-        user = update.effective_user
-        update.message.reply_markdown_v2(
-            fr'Hi {user.mention_markdown_v2()}\!',
-            reply_markup=ForceReply(selective=True),
-        )
+        try:
+            logging.info("User has invoked '/start' command.")
+            user = update.effective_user
+            update.message.reply_markdown_v2(
+                fr'Hi {user.mention_markdown_v2()}\!',
+                reply_markup=ForceReply(selective=True),
+            )
+        except Exception as exception:
+            logging.error(exception)
 
     def help_command(self, update: Update, context: CallbackContext) -> None:
         """Send a message when the command /help is issued."""
-        update.message.reply_text('Help!')
+        try:
+            logging.info("User has invoked '/start' command.")
+            update.message.reply_text('Help!')
+        except Exception as exception:
+            logging.exception(exception)
 
     def echo(self, update: Update, context: CallbackContext) -> None:
         """Echo the user message."""
-        if 'https://www.youtube.com/watch' in update.message.text:
-            video_id = update.message.text.split('?v=')[1].split('&')[0]
-            response = self.get_video_info(video_id)
-            if len(response.get('items')) > 0:
-                self.insert_into_playlist(self.playlistId, video_id)
-                update.message.text = f'I have added the song to the playlist {update.effective_user.name}'
-            else:
-                update.message.text = f'Due to some error I couldn\'t perform the operation.'
-        elif 'https://youtu.be' in update.message.text:
-            video_id = update.message.text.split('/')[-1]
-            response = self.get_video_info(video_id)
-            if len(response.get('items')) > 0:
-                self.insert_into_playlist(self.playlistId, video_id)
-                update.message.text = f'I have added the song to the playlist {update.effective_user.name}'
-            else:
-                update.message.text = f'Due to some error I couldn\'t perform the operation.'
+        try:
+            if 'https://www.youtube.com/watch' in update.message.text:
+                video_id = update.message.text.split('?v=')[1].split('&')[0]
+                response = self.get_video_info(video_id)
+                if len(response.get('items')) > 0:
+                    self.insert_into_playlist(self.playlistId, video_id)
+                    update.message.text = f'I have added the song to the playlist {update.effective_user.name}'
+                else:
+                    update.message.text = f'Due to some error I couldn\'t perform the operation.'
+            elif 'https://youtu.be' in update.message.text:
+                video_id = update.message.text.split('/')[-1]
+                response = self.get_video_info(video_id)
+                if len(response.get('items')) > 0:
+                    self.insert_into_playlist(self.playlistId, video_id)
+                    update.message.text = f'I have added the song to the playlist {update.effective_user.name}'
+                else:
+                    update.message.text = f'Due to some error I couldn\'t perform the operation.'
+        except Exception as exception:
+            update.message.text = f'Due to some error I couldn\'t perform the operation.'
+            logging.exception(exception)
+
         update.message.reply_text(update.message.text)
 
 
