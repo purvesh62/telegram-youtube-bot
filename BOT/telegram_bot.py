@@ -10,7 +10,7 @@ Basic Echobot example, repeats messages.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
-
+from flask import Flask
 import logging
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
@@ -23,6 +23,8 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+app = Flask(__name__)
 
 
 class TelegramBot(YoutubeAPI):
@@ -108,5 +110,11 @@ class TelegramBot(YoutubeAPI):
         update.message.reply_text(update.message.text)
 
 
-if __name__ == '__main__':
-    TelegramBot().main()
+TelegramBot().main()
+
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
+
+
+app.run(port=5000)
